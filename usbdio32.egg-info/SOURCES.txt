@@ -1,0 +1,8 @@
+setup.py
+usbdio/__init__.py
+usbdio/dio32python.py
+usbdio/utils.py
+usbdio32.egg-info/PKG-INFO
+usbdio32.egg-info/SOURCES.txt
+usbdio32.egg-info/dependency_links.txt
+usbdio32.egg-info/top_level.txt
