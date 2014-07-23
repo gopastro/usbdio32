@@ -22,6 +22,7 @@ class settings:
     writeBuffer_byte_c = AU.DIOBuf(8)
     writeBuffer_byte_d = AU.DIOBuf(8)
     outputMask = AU.NewAIOChannelMaskFromStr("1111")
+    device_index = 0
 
 def Change_outputMask(the_settings, newMask):
     """
