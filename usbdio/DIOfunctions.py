@@ -55,8 +55,8 @@ def update_settings (first_settings):
     it returns the settings, now with attributes modified to be up-to-date with the buffers 
     e.g. settings.writeBuffer_byte_a will more accuratly reflect settings.writeBuffer
     """
-    result = AU.DIO_Configure( 0, AU.AIOUSB_FALSE, first_settings.outputMask, first_settings.writeBuffer)
-    read= AU.DIO_ReadAll(0, first_settings.readBuffer)
+    result = AU.DIO_Configure( first_settings.device_index, AU.AIOUSB_FALSE, first_settings.outputMask, first_settings.writeBuffer)
+    read= AU.DIO_ReadAll(first_settings.device_index, first_settings.readBuffer)
     letters = ["a", "b", "c", "d"]
     index = {} #set position of bits on board
     index["a"] = 24
@@ -136,7 +136,7 @@ def set_bit (letter, num, new_bit, Current_settings):
     if io == 1: #if output is selected
         new_settings = Change_outputMask_port( new_letter, io, Current_settings)
         AU.DIOBufSetIndex( new_settings.writeBuffer, bit_position, new_bit) #channge the writeBuffer in the settings
-        result = AU.DIO_Configure( 0, AU.AIOUSB_FALSE, new_settings.outputMask, new_settings.writeBuffer) #truly change the device
+        result = AU.DIO_Configure( new_settings.device_index, AU.AIOUSB_FALSE, new_settings.outputMask, new_settings.writeBuffer) #truly change the device
         print AU.DIOBufToString(new_settings.writeBuffer)
         present_settings = update_settings(new_settings) #return the current writeBuffer
         return present_settings
@@ -168,7 +168,7 @@ def read_bit (letter, number, first_settings):
     outputMask_string = str(first_settings.outputMask)
     if outputMask_string[port_position] == str(0):
         Current_settings = first_settings
-        read = AU.DIO_ReadAll(0, Current_settings.readBuffer)#the default state for the bits is high, connecting them to the ground will set them low
+        read = AU.DIO_ReadAll(Current_settings.device_index, Current_settings.readBuffer)#the default state for the bits is high, connecting them to the ground will set them low
     else:
         print "outputMask was not configured for input in port: %s, "  %(new_letter)
         #Current_settings = Change_outputMask_port( new_letter, 0, first_settings)
@@ -275,6 +275,44 @@ def choose_byte (port, io, settings):
             if io == 0:
                 choosen_byte = settings.readBuffer_byte_d
     return choosen_byte
+
+def list_devices(number_devices):
+    """
+    This function takes one arguement: the number of ACCES USBDIO32 devices connected
+    list_devices returns a list of settings(one for each device), that have different device_index values
+    """
+    devices = []
+    result = AU.AIOUSB_Init()
+    deviceMask = AU.GetDevices()
+    index = 0
+    a_set_of_devices = []
+    counter = 0
+    a_device = settings()
+    while deviceMask > 0 and len(devices) < number_devices :
+        if (deviceMask & 1 ) != 0: #what is the purpose of this?, 1 will never be 0
+            obj = AU.GetDeviceInfo( index ) #I presume this gets information
+            if obj.PID == AU.USB_DIO_32 or obj.PID == AU.USB_DIO_16A : #if the device if of the correct kind
+                a_set_of_devices.append(a_device)
+                a_set_of_devices[counter].device_index = counter
+                counter = counter + 1
+        index = index + 1 #change index
+        deviceMask >>= 1 #what does this do?
+    return a_set_of_devices
+
+
+def set_up_all(number_devices):
+    """
+    This function takes one arguement: the number of ACCES USBDIO32 devices connected
+    set_up_all returns a list of settings(one for each device), that have different device_index values
+    set_up_all also sets the outputMasks all to output and sets all bits to low
+    """
+    devices = []
+    devices = list_devices(number_devices)
+    for num in xrange(number_devices):
+        devices[num] = reset(devices[num], 0)
+        devices[num] = update_settings(devices[num])
+    return devices
+
 
 
 

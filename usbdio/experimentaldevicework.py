@@ -23,7 +23,7 @@ def list_devices():
     except IndexError:
         print "No devices were found. Please make sure you have at least one ACCES I/O Products USB device plugged into your computer"
         sys.exit(1)
-    return a_set_of _devices
+    return a_set_of_devices
 
 
 
