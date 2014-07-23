@@ -10,7 +10,7 @@ def read(fname):
 
 setup(
     name = "usbdio32",
-    version = "0.6",
+    version = "0.7",
     author = "Rex Depillis",
     description = "An easy-to-use python class-based interface to the Acces USB DIO-32 Digital Interface module",
     long_description=read('README.md'),
